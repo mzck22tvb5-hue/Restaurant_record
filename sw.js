@@ -1,5 +1,16 @@
 
 const CACHE='restaurant-map-mobile-v1';
+-const CACHE='restaurant-map-mobile-v1';
++const CACHE='restaurant-map-mobile-v3';
+ self.addEventListener('install',e=>{
+-  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
++  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
++  self.skipWaiting && self.skipWaiting();
+ });
+ self.addEventListener('activate',e=>{
+   e.waitUntil(self.clients.claim());
+ });
+
 const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(self.clients.claim())});
