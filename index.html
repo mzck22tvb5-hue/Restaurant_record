@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>我的餐廳地圖（行動版）</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#111111">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="fab-group">
+    <button id="fab-main" class="fab" title="新增/搜尋">＋</button>
+    <div id="fab-menu" class="fab-menu hidden">
+      <button id="btn-search" class="fab-item">🔎</button>
+      <button id="btn-address" class="fab-item">📍</button>
+      <button id="btn-export" class="fab-item">⬇️</button>
+      <label class="fab-item file-label" title="匯入JSON">⬆️<input type="file" id="importFile" accept="application/json"></label>
+    </div>
+  </div>
+
+  <section id="sheet" class="sheet">
+    <div class="sheet-handle" id="sheetHandle"></div>
+    <div class="sheet-content">
+      <div class="group">
+        <input id="nameInput" class="input" placeholder="餐廳名稱" />
+        <div class="row">
+          <select id="statusSelect" class="input">
+            <option value="wish">想去</option>
+            <option value="visited">已去</option>
+          </select>
+          <select id="ratingSelect" class="input">
+            <option value="">（無）</option>
+            <option>★☆☆☆☆</option>
+            <option>★★☆☆☆</option>
+            <option>★★★☆☆</option>
+            <option>★★★★☆</option>
+            <option>★★★★★</option>
+          </select>
+        </div>
+        <input id="tagsInput" class="input" placeholder="標籤（逗號分隔）" />
+        <textarea id="noteInput" class="input" rows="3" placeholder="我的評價／備註"></textarea>
+      </div>
+
+      <div class="group">
+        <label class="btn block">
+          新增照片
+          <input id="photoInput" type="file" accept="image/*" multiple hidden>
+        </label>
+        <div id="photoPreview" class="photo-grid"></div>
+      </div>
+
+      <div class="group">
+        <button id="saveBtn" class="btn primary block">儲存</button>
+        <button id="deleteBtn" class="btn danger block">刪除</button>
+      </div>
+
+      <div class="group">
+        <div class="pill-row">
+          <label class="pill"><input type="checkbox" id="filterWish" checked> 想去</label>
+          <label class="pill"><input type="checkbox" id="filterVisited" checked> 已去</label>
+        </div>
+        <ul id="placeList" class="place-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="dlg-search" class="dialog">
+    <h3>Google 搜尋並加入「想去」</h3>
+    <input id="placeSearch" class="input" placeholder="輸入關鍵字（例：牛肉麵 大安）">
+    <div class="row">
+      <button id="searchBtn" class="btn primary">搜尋並加入</button>
+      <button class="btn" onclick="document.getElementById('dlg-search').close()">取消</button>
+    </div>
+  </dialog>
+
+  <dialog id="dlg-address" class="dialog">
+    <h3>用地址新增地點</h3>
+    <input id="addressInput" class="input" placeholder="輸入地址或地點">
+    <div class="row">
+      <button id="geocodeBtn" class="btn primary">定位並加點</button>
+      <button class="btn" onclick="document.getElementById('dlg-address').close()">取消</button>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+  </script>
+  <!-- 換成你的金鑰；需啟用 Maps JavaScript API 與 Places API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgdU7CU27ZqBajdax_8rrIyO6-nPCJmkM&loading=async&libraries=places&callback=initMap" async defer></script>
+</body>
+</html>
