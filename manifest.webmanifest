@@ -1,5 +1,5 @@
 {
-  "name": "我的餐廳地圖（行動版）",
+  "name": "我的餐廳地圖（行動版 v1）",
   "short_name": "餐廳地圖",
   "start_url": "./index.html",
   "display": "standalone",

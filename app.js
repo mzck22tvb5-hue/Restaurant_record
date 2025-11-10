@@ -1,5 +1,7 @@
 
-let map, geocoder, placesService, infoWindow;
+const GOOGLE_API_KEY = "AIzaSyAgdU7CU27ZqBajdax_8rrIyO6-nPCJmkM";
+
+let map, geocoder, infoWindow;
 let markers = new Map();
 let selectedId = null;
 const STORE_KEY = "my-restaurant-map:v1";
@@ -13,7 +15,6 @@ function initMap(){
   geocoder = new google.maps.Geocoder();
   map = new google.maps.Map(document.getElementById("map"), { center:{lat:25.033964,lng:121.564468}, zoom:13, mapTypeControl:false });
   infoWindow = new google.maps.InfoWindow();
-  placesService = new google.maps.places.PlacesService(map);
   if(navigator.geolocation){ navigator.geolocation.getCurrentPosition(p=>{ map.setCenter({lat:p.coords.latitude,lng:p.coords.longitude}); map.setZoom(14); }); }
   setupUI(); renderAll();
 }
@@ -25,7 +26,7 @@ function setupUI(){
   $("btn-address").addEventListener("click",()=>{ $("dlg-address").showModal(); fabMenu.classList.add("hidden"); });
   $("btn-export").addEventListener("click", onExport);
   $("importFile").addEventListener("change", onImport);
-  $("searchBtn").addEventListener("click", onGoogleSearch);
+  $("searchBtn").addEventListener("click", onGoogleSearchV1);
   $("geocodeBtn").addEventListener("click", onGeocode);
   $("saveBtn").addEventListener("click", onSave);
   $("deleteBtn").addEventListener("click", onDelete);
@@ -37,20 +38,31 @@ function setupUI(){
   handle.addEventListener("click",()=>sheet.classList.toggle("collapsed"));
 }
 
-function onGoogleSearch(){
-  const dlg=$("dlg-search"); const q=$("placeSearch").value.trim(); if(!q) return alert("請輸入關鍵字");
-  placesService.textSearch({query:q}, (results,status)=>{
-    if(status!==google.maps.places.PlacesServiceStatus.OK || !results) return alert("搜尋失敗或無結果");
-    const store=loadStore(); let added=0;
+async function onGoogleSearchV1(){
+  const q = $("placeSearch").value.trim();
+  if(!q) return alert("請輸入關鍵字");
+  try{
+    const resp = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": GOOGLE_API_KEY,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.location"
+      },
+      body: JSON.stringify({ textQuery: q, languageCode: "zh-TW", regionCode: "TW" })
+    });
+    if(!resp.ok){ const t=await resp.text(); alert("Places 搜尋失敗："+t); return; }
+    const data = await resp.json();
+    const results = data.places || [];
+    const store = loadStore(); let added=0;
     for(const p of results){
-      const pos=p.geometry?.location; if(!pos) continue;
-      if(store.places.some(x=>x.place_id && x.place_id===p.place_id)) continue;
-      const id=uid();
-      store.places.push({ id, name:p.name||"(未命名)", address:p.formatted_address||p.vicinity||"", lat:pos.lat(), lng:pos.lng(), status:"wish", rating:"", tags:[], note:"", photos:[], place_id:p.place_id||null, source:"google", created_at:Date.now(), updated_at:Date.now() });
+      const loc=p.location; if(!loc) continue;
+      const placeId=p.id; if(store.places.some(x=>x.place_id===placeId)) continue;
+      store.places.push({ id:uid(), name:p.displayName?.text||"(未命名)", address:p.formattedAddress||"", lat:loc.latitude, lng:loc.longitude, status:"wish", rating:"", tags:[], note:"", photos:[], place_id:placeId, source:"google_v1", created_at:Date.now(), updated_at:Date.now() });
       added++;
     }
-    saveStore(store); renderAll(); alert(`已加入 ${added} 筆到「想去」`); dlg.close();
-  });
+    saveStore(store); renderAll(); alert(`已加入 ${added} 筆到「想去」`); $("dlg-search").close();
+  }catch(e){ alert("Places 呼叫異常："+e.message); }
 }
 
 function onGeocode(){
@@ -79,7 +91,7 @@ function renderAll(){
       infoWindow.open(map, marker);
     });
     const li=document.createElement("li");
-    li.innerHTML = `<div class="place-title">${escapeHtml(p.name||"(未命名)")}</div><div class="place-sub">${escapeHtml(p.address||"")}</div><div class="place-sub">${p.status==="visited"?"已去":"想去"} ${p.rating? "・"+p.rating:""} ${p.tags?.length? "・"+p.tags.join(", "):""}</div>`;
+    li.innerHTML = `<div class="place-title">${escapeHtml(p.name||"(未命名)")}</div><div class="place-sub">${escapeHtml(p.address||"")}</div><div class="place-sub">${p.status==="visited"?"已去":"想去"} ${p.rating? "・"+p.rating:""} ${p.tags?.length? "・"+p.tags.join(", ") : ""}</div>`;
     li.addEventListener("click",()=>selectPlace(p.id)); ul.appendChild(li);
   }
 }

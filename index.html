@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>我的餐廳地圖（行動版）</title>
+  <title>我的餐廳地圖（行動版 v1）</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#111111">
   <link rel="apple-touch-icon" href="icon-192.png">
@@ -17,9 +18,9 @@
   <div class="fab-group">
     <button id="fab-main" class="fab" title="新增/搜尋">＋</button>
     <div id="fab-menu" class="fab-menu hidden">
-      <button id="btn-search" class="fab-item">🔎</button>
-      <button id="btn-address" class="fab-item">📍</button>
-      <button id="btn-export" class="fab-item">⬇️</button>
+      <button id="btn-search" class="fab-item" title="Google 搜尋">🔎</button>
+      <button id="btn-address" class="fab-item" title="地址定位">📍</button>
+      <button id="btn-export" class="fab-item" title="匯出">⬇️</button>
       <label class="fab-item file-label" title="匯入JSON">⬆️<input type="file" id="importFile" accept="application/json"></label>
     </div>
   </div>
@@ -92,7 +93,6 @@
   <script>
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
-  <!-- 換成你的金鑰；需啟用 Maps JavaScript API 與 Places API -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgdU7CU27ZqBajdax_8rrIyO6-nPCJmkM&loading=async&libraries=places&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAgdU7CU27ZqBajdax_8rrIyO6-nPCJmkM&loading=async&callback=initMap" async defer></script>
 </body>
 </html>
